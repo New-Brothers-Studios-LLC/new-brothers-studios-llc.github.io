@@ -1,17 +1,11 @@
-
-
-
 <!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>miniTube | Premium</title>
 
-<script async
-src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1675752368312983"
-crossorigin="anonymous"></script>
-
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1675752368312983" crossorigin="anonymous"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -52,294 +46,243 @@ crossorigin="anonymous"></script>
 
         .video-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
         }
 
         .hide-app { display: none !important; }
-        canvas { display: none; }
 
-        /* OVERLAY GENERAL */
-        #loading-overlay {
-            background: rgba(5, 5, 7, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 9999;
-            display: none;
+        .report-btn-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.3s ease;
+            font-size: 20px;
+            transition: all 0.3s ease;
         }
 
-        /* SPINNER ESTILO GOOGLE (MATERIAL DESIGN) */
-        .material-spinner {
-            width: 65px;
-            height: 65px;
-            animation: rotate 2s linear infinite;
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out forwards;
         }
-
-        .material-spinner .path {
-            stroke: #8b5cf6; /* Morado miniTube */
-            stroke-linecap: round;
-            animation: dash 1.5s ease-in-out infinite;
-        }
-
-        @keyframes rotate {
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes dash {
-            0% {
-                stroke-dasharray: 1, 200;
-                stroke-dashoffset: 0;
-            }
-            50% {
-                stroke-dasharray: 90, 200;
-                stroke-dashoffset: -35px;
-            }
-            100% {
-                stroke-dasharray: 90, 200;
-                stroke-dashoffset: -124px;
-            }
-        }
-
-        /* Ajuste para el overlay en el video */
-        .video-loader-active {
-            position: absolute !important;
-            inset: 0 !important;
-            border-radius: 1.5rem;
-            z-index: 50 !important;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 <body class="bg-tube-base">
-    <canvas id="thumb-generator"></canvas>
 
-    <div id="loading-overlay" class="fixed inset-0">
-        <svg class="material-spinner" viewBox="25 25 50 50">
-            <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="4"></circle>
-        </svg>
+    <div id="loading-overlay" class="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center hidden">
+        <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 
-    <div id="login-screen" class="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-tube-base">
-        <div class="glass w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl text-center">
-            <div class="w-20 h-20 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-3xl mx-auto mb-8 flex items-center justify-center shadow-2xl">
-                <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-            <h1 class="text-4xl font-extrabold mb-2 tracking-tighter">mini<span class="text-purple-500">Tube</span></h1>
-            <p class="text-gray-400 text-sm mb-10 tracking-widest font-light uppercase">Página oficial de monetización</p>
+    <!-- Modal Premium -->
+    <div id="premium-ad-modal" class="fixed inset-0 z-[2000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-md">
+        <div class="glass w-full max-w-lg p-8 md:p-10 rounded-[3rem] text-center border-t border-purple-500/30">
+            <div class="text-5xl mb-6">🌟</div>
+            <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter">Suscripción <span class="text-purple-500">PREMIUM</span></h2>
+            <p class="text-gray-400 mb-8 text-sm italic">Acceso total a la red miniTube</p>
             
-            <div class="space-y-4">
-                <input type="text" id="username" placeholder="Usuario" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-purple-500 transition-all text-white">
-                <input type="password" id="password" placeholder="Contraseña" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-purple-500 transition-all text-white">
-                <button onclick="handleLogin()" class="w-full bg-white text-black font-extrabold py-5 rounded-2xl hover:bg-purple-600 hover:text-white transition-all duration-500 transform active:scale-95 shadow-xl text-sm tracking-widest">
-                    ENTRAR
-                </button>
-            </div>
-            <p id="error-msg" class="text-pink-500 text-xs mt-6 opacity-0 transition-opacity">Credenciales incorrectas.</p>
-        </div>
-    </div>
-
-    <div id="premium-ad-modal" class="fixed inset-0 z-[2000] hidden items-center justify-center p-6 bg-black/90 backdrop-blur-md">
-        <div class="glass w-full max-w-lg p-8 md:p-12 rounded-[3rem] text-center border-t border-purple-500/30">
-            <div class="text-6xl mb-6">🌟</div>
-            <h2 class="text-3xl font-black mb-2 tracking-tighter uppercase">Suscripción <span class="text-purple-500">PREMIUM</span></h2>
-            <p class="text-gray-400 mb-8 font-medium italic">Acceso total a la red miniTube</p>
-            
-            <ul class="text-left space-y-4 mb-10 inline-block text-sm">
+            <ul class="text-left space-y-3 mb-10 inline-block text-[13px] md:text-sm">
                 <li><span class="text-purple-500 font-bold mr-2">✓</span> Acceso a directos exclusivos</li>
                 <li><span class="text-purple-500 font-bold mr-2">✓</span> Calidad Full HD (1080p)</li>
                 <li><span class="text-purple-500 font-bold mr-2">✓</span> Descargas por APK habilitadas</li>
                 <li><span class="text-purple-500 font-bold mr-2">✓</span> Comentar en los vídeos</li>
-                <li><span class="text-purple-500 font-bold mr-2">✓</span> Sin ADS</li>
-                <li><span class="text-purple-500 font-bold mr-2">✓</span>Monetización de hasta $0.50 × Video</li>
+                <li><span class="text-purple-500 font-bold mr-2">✓</span> Sin ADS (Publicidad)</li>
+                <li><span class="text-purple-500 font-bold mr-2">✓</span> Monetización de hasta $0.50 × Video</li>
                 <li class="text-purple-400 font-bold">¡Y muchas cosas más!</li>
             </ul>
 
             <div class="space-y-4">
-                <a href="https://wa.me/50373826693?text=Hola,%20Quiero%20el%20premium%20By%20MiniTube" target="_blank" class="block w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black py-5 rounded-2xl shadow-lg shadow-purple-600/30 tracking-widest uppercase">
+                <a href="https://wa.me/50373826693?text=Hola,%20Quiero%20el%20premium%20By%20MiniTube" target="_blank" class="block w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black py-5 rounded-2xl shadow-lg uppercase text-center">
                     COMPRAR $7.99/MES
                 </a>
-                <button onclick="closePremiumAd()" class="text-gray-500 text-xs hover:text-white underline">Continuar a la versión gratuita</button>
+                <button onclick="closePremiumAd()" class="text-gray-500 text-xs underline">Continuar gratis</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reporte -->
+    <div id="report-modal" class="fixed inset-0 z-[7000] hidden items-center justify-center p-6 bg-black/80 backdrop-blur-xl">
+        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] text-center border border-white/10 shadow-2xl">
+            <div class="text-5xl mb-4">📢</div>
+            <h3 class="text-2xl font-black mb-4">¿Algún problema?</h3>
+            <p class="text-gray-400 text-sm mb-10 px-4">Infórmanos si hay algún error técnico.</p>
+            <div class="space-y-4">
+                <a href="https://wa.me/50373826693?text=Hola,%20tengo%20un%20problema%20en%20MiniTube" target="_blank" class="block w-full bg-white text-black font-black py-4 rounded-xl hover:bg-purple-600 hover:text-white transition-all text-center">INFÓRMANOS</a>
+                <button onclick="toggleReportModal(false)" class="text-gray-500 text-xs uppercase font-bold tracking-widest">Cerrar</button>
             </div>
         </div>
     </div>
 
     <div id="main-app" class="hide-app min-h-screen">
         <nav class="fixed top-0 w-full z-50 p-4">
-            <div class="max-w-[1400px] mx-auto glass rounded-3xl p-4 px-8 flex items-center justify-between shadow-2xl">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-                         <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <div class="max-w-[1200px] mx-auto glass rounded-[2.5rem] p-5 flex flex-col items-center gap-5 border-b border-purple-500/10 shadow-2xl">
+                <div class="flex items-center justify-center w-full relative">
+                    <div class="absolute left-0">
+                        <button onclick="toggleReportModal(true)" class="report-btn-circle">📢</button>
                     </div>
-                    <span class="text-2xl font-black tracking-tighter uppercase">mini<span class="text-purple-500">Tube</span></span>
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                        <div class="relative flex items-center">
+                            <span class="text-2xl font-black tracking-tighter uppercase leading-none">MINI<span class="text-purple-500">TUBE</span></span>
+                            <span class="text-[12px] font-black text-purple-500 ml-1 self-start">.com</span>
+                        </div>
+                    </div>
                 </div>
-                <div id="user-display" class="text-[10px] font-black text-purple-400 uppercase tracking-widest bg-purple-500/10 px-4 py-1.5 rounded-full border border-purple-500/20 shadow-inner">User</div>
+                <div class="w-full relative">
+                    <input type="text" id="search-bar" placeholder="Buscar vídeos o creadores..." class="w-full bg-white/5 border border-white/10 rounded-[1.2rem] pl-12 pr-4 py-3.5 outline-none focus:border-purple-500/50 text-white text-sm">
+                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                </div>
             </div>
         </nav>
 
-        <main class="pt-28 pb-20 px-6 max-w-[1400px] mx-auto">
-            <div id="video-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                </div>
+        <main class="pt-56 md:pt-52 pb-24 px-6 max-w-[1200px] mx-auto">
+            <div id="video-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
         </main>
     </div>
 
+    <!-- Modal Jugador (Original con aviso de fin) -->
     <div id="player-modal" class="fixed inset-0 z-[6000] hidden items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/95 backdrop-blur-2xl" onclick="closePlayer()"></div>
-        <div class="relative w-full max-w-5xl glass rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10">
-            <div class="aspect-video bg-black relative" id="video-container">
-                
-                <div id="video-loader" class="absolute inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center hidden">
-                    <svg class="material-spinner" viewBox="25 25 50 50">
-                        <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="4"></circle>
-                    </svg>
-                </div>
-                
+        <div class="absolute inset-0 bg-black/98 backdrop-blur-3xl" onclick="closePlayer()"></div>
+        <div class="relative w-full max-w-4xl glass rounded-[2.5rem] overflow-hidden shadow-2xl">
+            
+            <div class="relative w-full aspect-video bg-black">
+                <!-- Vuelve a usar los controles nativos que son más limpios -->
                 <video id="video-player" class="w-full h-full" controls playsinline></video>
-                <button onclick="closePlayer()" class="absolute top-4 right-4 bg-black/40 hover:bg-white/20 p-2 rounded-full text-white z-[60]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                
+                <!-- Aviso de fin de video -->
+                <div id="end-video-notice" class="absolute inset-0 z-20 bg-black/80 flex items-center justify-center p-6 hidden">
+                    <div class="glass p-8 rounded-[2rem] text-center max-w-sm fade-in border border-purple-500/30">
+                        <p class="text-lg font-bold mb-6">El video ya terminó. ¿Quieres ver otro vídeo?</p>
+                        <div class="flex flex-col gap-3">
+                            <button onclick="playRandomVideo()" class="bg-purple-600 w-full py-4 rounded-xl font-black uppercase tracking-widest hover:bg-purple-500">Sí, ver otro</button>
+                            <button onclick="closePlayer()" class="text-gray-400 text-xs font-bold uppercase tracking-widest mt-2">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8 flex justify-between items-center bg-tube-surface/50">
+                <div>
+                    <h2 id="modal-title" class="text-xl font-black uppercase tracking-tighter">Título</h2>
+                    <span id="modal-user-label" class="inline-block mt-3 text-[10px] bg-purple-600/20 text-purple-400 px-3 py-1 rounded-full font-black uppercase tracking-widest">@USER</span>
+                </div>
+                <button id="player-like-btn" class="report-btn-circle text-gray-400 transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                 </button>
             </div>
-            <div class="p-6 md:p-8 flex items-center justify-between">
-                <div>
-                    <h2 id="modal-title" class="text-xl md:text-2xl font-bold line-clamp-1">Título</h2>
-                    <p id="modal-user-label" class="text-sm text-purple-500 font-black mt-1 uppercase tracking-tighter">@User</p>
-                </div>
-            </div>
+            <button onclick="closePlayer()" class="absolute top-6 right-6 z-30 text-white bg-black/40 p-2 rounded-full hover:bg-purple-600 transition-colors">✕</button>
         </div>
     </div>
 
     <script>
-        const USERS_AUTH = {
-            "Jonathan7612": "JONATHAN56138",
-            "Kathya2095": "gataxdgata",
-            "Andersxn": "ANDERSXN9182",
-            "Papitaconpapa_xdd": "Amo las papas fritas :3"
-        };
-
         const VIDEOS = [
-            { id: 1, title:"PAPITACONPAPAXD", url: "https://github.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/raw/refs/heads/main/VID-20260224-WA0006.mp4", user: "Papitaconpapa_xd", rawThumb: "https://raw.githubusercontent.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/main/Screenshot_20260224_191623_Chrome.jpg" },
-           
- { id: 2, title: "noseXd", url: "https://github.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/raw/refs/heads/main/0dc76295fbd1b1d731be9174db64c572.mp4", user: "I'AM JXAN", rawThumb: "https://raw.githubusercontent.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/main/Screenshot_20260224_191830_Lark%20Player.jpg" },
-            { id: 3, title: "RAPTURE", url: "https://github.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/raw/refs/heads/main/lv_0_20260216215137.mp4", user: "Andersxn", rawThumb: "https://raw.githubusercontent.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/main/Screenshot_20260224_191556_Lark%20Player.jpg" },
-            { id: 4, title: "", url: "", user: "", rawThumb: "" },
-                      { id: 5, title: "", url: "", user: "", rawThumb: "" },
-            // ... Aquí van los otros 36 espacios
+            { id: 1, title:"PAPITACONPAPAXD", url: "https://github.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/raw/refs/heads/main/VID-20260224-WA0006.mp4", user: "PAPITACONPAPA_XD", thumb: "https://raw.githubusercontent.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/main/Screenshot_20260224_191623_Chrome.jpg", liked: false },
+            { id: 2, title: "noseXd", url: "https://github.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/raw/refs/heads/main/0dc76295fbd1b1d731be9174db64c572.mp4", user: "I'AM JXAN", thumb: "https://raw.githubusercontent.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/main/Screenshot_20260224_191830_Lark%20Player.jpg", liked: false },
+            { id: 3, title: "RAPTURE", url: "https://github.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/raw/refs/heads/main/lv_0_20260216215137.mp4", user: "Andersxn", thumb: "https://raw.githubusercontent.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/main/Screenshot_20260224_191556_Lark%20Player.jpg", liked: false },
+            { id: 4, title: "CAT AXE", url: "https://github.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/raw/refs/heads/main/0dc76295fbd1b1d731be9174db64c572.mp4", user: "Gato_Loco", thumb: "https://raw.githubusercontent.com/New-Brothers-Studios-LLC/Setup-MiniTube.com/main/Screenshot_20260224_191830_Lark%20Player.jpg", liked: false }
         ];
 
-        const overlay = document.getElementById('loading-overlay');
-        const videoLoader = document.getElementById('video-loader');
+        let videoList = [...VIDEOS];
+        let currentOpenId = null;
         const player = document.getElementById('video-player');
-
-        function toggleMainOverlay(show) {
-            overlay.style.display = show ? 'flex' : 'none';
-        }
-
-        function toggleVideoOverlay(show) {
-            videoLoader.classList.toggle('hidden', !show);
-        }
-
-        function handleLogin() {
-            const u = document.getElementById('username').value.trim();
-            const p = document.getElementById('password').value;
-            if (USERS_AUTH[u] && USERS_AUTH[u] === p) {
-                document.getElementById('login-screen').classList.add('hide-app');
-                document.getElementById('premium-ad-modal').classList.remove('hidden');
-                document.getElementById('premium-ad-modal').classList.add('flex');
-                document.getElementById('user-display').innerText = u;
-            } else {
-                const err = document.getElementById('error-msg');
-                err.style.opacity = '1';
-                setTimeout(() => err.style.opacity = '0', 2000);
-            }
-        }
+        const endNotice = document.getElementById('end-video-notice');
 
         async function closePremiumAd() {
-            document.getElementById('premium-ad-modal').classList.remove('flex');
             document.getElementById('premium-ad-modal').classList.add('hidden');
-            
-            toggleMainOverlay(true);
-            await renderVideos();
-            toggleMainOverlay(false);
-            
-            document.getElementById('main-app').classList.remove('hide-app');
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            renderVideos();
+            setTimeout(() => {
+                document.getElementById('loading-overlay').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hide-app');
+            }, 800);
         }
 
-        async function generateThumb(url) {
-            return new Promise((resolve) => {
-                const video = document.createElement('video');
-                video.src = url;
-                video.crossOrigin = "anonymous";
-                video.currentTime = 1;
-                video.onloadeddata = () => {
-                    const canvas = document.getElementById('thumb-generator');
-                    canvas.width = 480;
-                    canvas.height = 270;
-                    canvas.getContext('2d').drawImage(video, 0, 0, 480, 270);
-                    resolve(canvas.toDataURL('image/jpeg'));
-                };
-                video.onerror = () => resolve('https://via.placeholder.com/480x270/0f0f13/8b5cf6?text=MiniTube');
-            });
+        function toggleReportModal(show) {
+            document.getElementById('report-modal').classList.toggle('hidden', !show);
+            document.getElementById('report-modal').classList.toggle('flex', show);
         }
 
-        async function renderVideos() {
+        function renderVideos(list = videoList) {
             const grid = document.getElementById('video-grid');
             grid.innerHTML = '';
-            
-            const activeVideos = VIDEOS.filter(v => v.url !== "");
-
-            const renderCards = activeVideos.map(async (v) => {
-                const thumb = v.rawThumb !== "" ? v.rawThumb : await generateThumb(v.url);
+            list.forEach(v => {
                 const card = document.createElement('div');
-                card.className = "video-card glass rounded-[2rem] overflow-hidden cursor-pointer group";
+                card.className = "video-card glass rounded-[2.5rem] overflow-hidden cursor-pointer group";
                 card.innerHTML = `
                     <div class="relative aspect-video">
-                        <img src="${thumb}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                             <div class="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center shadow-2xl scale-75 group-hover:scale-100 transition-all duration-300">
-                                <svg class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                             </div>
+                        <img src="${v.thumb}" class="w-full h-full object-cover">
+                        <div class="absolute top-4 right-4 z-10">
+                            <button onclick="event.stopPropagation(); toggleLike(${v.id})" class="w-10 h-10 rounded-full bg-black/40 flex items-center justify-center backdrop-blur-md ${v.liked ? 'text-pink-500' : 'text-white'}">
+                                <svg class="w-5 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </button>
                         </div>
                     </div>
-                    <div class="p-5">
-                        <h3 class="font-bold text-sm line-clamp-1 group-hover:text-purple-400 transition-colors">${v.title || 'Sin Título'}</h3>
-                        <p class="text-[9px] text-purple-400 font-black mt-2 uppercase tracking-widest border border-purple-500/20 w-fit px-2 py-0.5 rounded-full">@${v.user}</p>
+                    <div class="p-7">
+                        <h3 class="font-black text-base uppercase tracking-tight line-clamp-1">${v.title}</h3>
+                        <span class="inline-block mt-4 text-[9px] bg-purple-600/10 text-purple-400 px-3 py-1 rounded-full font-black uppercase tracking-widest">@${v.user}</span>
                     </div>
                 `;
                 card.onclick = () => openPlayer(v);
-                return card;
+                grid.appendChild(card);
             });
-
-            const cards = await Promise.all(renderCards);
-            cards.forEach(c => grid.appendChild(c));
         }
 
-        // --- MONITOR DE BUFFERING ---
-        player.addEventListener('waiting', () => toggleVideoOverlay(true));
-        player.addEventListener('playing', () => toggleVideoOverlay(false));
-        player.addEventListener('canplay', () => toggleVideoOverlay(false));
-        player.addEventListener('seeked', () => toggleVideoOverlay(false));
-
         function openPlayer(v) {
-            const modal = document.getElementById('player-modal');
+            currentOpenId = v.id;
             document.getElementById('modal-title').innerText = v.title;
             document.getElementById('modal-user-label').innerText = `@${v.user}`;
-            
-            toggleVideoOverlay(true);
             player.src = v.url;
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            endNotice.classList.add('hidden');
             
-            player.play().catch(() => toggleVideoOverlay(false));
+            document.getElementById('player-like-btn').classList.toggle('text-pink-500', v.liked);
+            document.getElementById('player-like-btn').onclick = () => toggleLike(v.id);
+
+            document.getElementById('player-modal').classList.remove('hidden');
+            document.getElementById('player-modal').classList.add('flex');
+            player.play();
+        }
+
+        player.onended = function() {
+            endNotice.classList.remove('hidden');
+        };
+
+        function playRandomVideo() {
+            const others = videoList.filter(v => v.id !== currentOpenId);
+            const next = others[Math.floor(Math.random() * others.length)];
+            openPlayer(next);
+        }
+
+        function toggleLike(id) {
+            const v = videoList.find(item => item.id === id);
+            if (v) {
+                v.liked = !v.liked;
+                renderVideos();
+                if (currentOpenId === id) {
+                    document.getElementById('player-like-btn').classList.toggle('text-pink-500', v.liked);
+                }
+            }
         }
 
         function closePlayer() {
-            const modal = document.getElementById('player-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+            document.getElementById('player-modal').classList.add('hidden');
             player.pause();
             player.src = "";
-            toggleVideoOverlay(false);
+            currentOpenId = null;
         }
+
+        document.getElementById('search-bar').addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase().trim();
+            const filtered = videoList.filter(v => v.title.toLowerCase().includes(val) || v.user.toLowerCase().includes(val));
+            renderVideos(filtered);
+        });
     </script>
 </body>
 </html>
-
